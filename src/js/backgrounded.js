@@ -1,4 +1,6 @@
-export default class Backgrounded {
+import EventEmitter from 'smelly-event-emitter';
+
+export default class Backgrounded extends EventEmitter {
 
     /**
      * sources:
@@ -23,8 +25,16 @@ export default class Backgrounded {
      *
      **/
     constructor(videoContainer, videoSources) {
-        let container   = this._container = videoContainer.nodeType ? videoContainer : document.querySelector(videoContainer);
-        let videos      = this._videos    = videoSources;
+        super();
+
+        let container      = this._container = videoContainer.nodeType ? videoContainer : document.querySelector(videoContainer);
+        if(!container) throw "Provided container is invalid";
+
+        this._videoSources = videoSources;
+        if(videoSources === undefined || videoSources.length < 1) throw "At least one video must be supplied";
+
+        // Instantiate some vars
+        this._isPlaying = false;
 
         // Create canvas element
         let canvas = this._canvas = document.createElement('canvas');
@@ -36,40 +46,52 @@ export default class Backgrounded {
         let ctx = this._ctx = canvas.getContext('2d');
 
         // Setup video elements
-        let videoElements = this._videoElements = videos.map((sources, idx, arr) => {
-            let videoElement = document.createElement('video');
-            videoElement.setAttribute('preload', 'none');
-            videoElement.setAttribute('loop',    'true');
+        let videoElements = this._videoElements = videoSources.map((sources, idx, arr) => {
+            let videoElement;
 
-            sources.forEach(source => {
-                let sourceElement = document.createElement('source');
-                sourceElement.setAttribute('src',  source.src);
-                sourceElement.setAttribute('type', source.type);
-                videoElement.appendChild(sourceElement);
-            });
-
-            if(idx === 0) {
-                let loaded = false;
-                let canPlayThrough = e => {
-                    this._setActiveVideo(videoElement);
-                    this._render();
-                    videoElements[1].load();
-                    videoElement.removeEventListener('canplaythrough', canPlayThrough);
-                }
-                videoElement.addEventListener('canplaythrough', canPlayThrough);
+            // If a video element was passed in then just use that
+            if(sources.nodeType && sources.nodeName === "VIDEO") {
+                videoElement = sources;
+            // Otherwise build a video element and set its sources
             } else {
-                let canPlayThrough = e => {
-                    this._setActiveVideo(videoElement);
-                    videoElement.removeEventListener('canplaythrough', canPlayThrough);
-                }
+                videoElement = document.createElement('video');
+                videoElement.setAttribute('preload', 'none');
+                videoElement.setAttribute('loop',    'true');
+
+                sources.forEach(source => {
+                    let sourceElement = document.createElement('source');
+                    sourceElement.setAttribute('src',  source.src);
+                    sourceElement.setAttribute('type', source.type);
+                    videoElement.appendChild(sourceElement);
+                });
+            }
+
+            // Can Play Through callback for videos that load
+            let canPlayThrough = e => {
+                this._setActiveVideo(videoElement);
+                // If there is another video to load then start it up
+                if(videoElements[idx + 1]) videoElements[idx + 1].load();
+                // Emit event for canplaythrough
+                this.emit('canplaythrough', videoElement, idx);
+                // This only needs to happen once so remove the event listener
+                videoElement.removeEventListener('canplaythrough', canPlayThrough);
+            }
+
+            // If the video element is not fully loaded then attach a loading event
+            if(videoElement.readyState !== HTMLMediaElement.HAVE_ENOUGH_DATA) {
                 videoElement.addEventListener('canplaythrough', canPlayThrough);
+            // Else fire the function manually
+            } else {
+                canPlayThrough();
             }
 
             return videoElement;
         });
 
+        // Attach resize event so the canvas will be the right size
         window.addEventListener('resize', this._calculateSize.bind(this));
 
+        // Kick off the load for the first video
         videoElements[0].load();
     }
 
@@ -83,7 +105,8 @@ export default class Backgrounded {
         function swap() {
             this._activeVideo = video;
             this._calculateSize();
-            video.play();
+            this.play();
+            this.emit('setactivevideo', video);
         }
 
         if(!this._activeVideo) {
@@ -152,13 +175,48 @@ export default class Backgrounded {
 
         this._videoX = (minW - this._videoWidth)/2;
         this._videoY = (minH - this._videoHeight)/2;
+
+        this.emit('resize');
     }
 
 
 
 
-    get video() {
-        return this._currentVideo;
+    /**
+     * Returns the current video
+     */
+    get activeVideo() {
+        return this._activeVideo;
+    }
+
+
+
+
+    /**
+     * Returns initialized video elements
+     */
+    get videoElements() {
+        return this._videoElements;
+    }
+
+
+
+
+    /**
+     * Returns the canvas
+     */
+    get canvas() {
+        return this._canvas;
+    }
+
+
+
+
+    /**
+     * Returns the container
+     */
+    get container() {
+        return this._container;
     }
 
 
@@ -168,7 +226,13 @@ export default class Backgrounded {
      * Pause the current video
      */
     pause() {
-        if(!this._currentVideo.paused) this.currentVideo.pause();
+        if(!this._activeVideo.paused) {
+            this.activeVideo.pause();
+            window.cancelAnimationFrame(this._animationKey);
+            this._animationKey = null;
+            this.emit('paused', this._activeVideo);
+            this._isPlaying = false;
+        }
     }
 
 
@@ -178,7 +242,12 @@ export default class Backgrounded {
      * Play the current video
      */
     play() {
-        if(this._currentVideo.paused) this.currentVideo.play();
+        if(this._activeVideo.paused) {
+            this._activeVideo.play();
+            if(!this._animationKey) this._render();
+            this.emit('playing', this._activeVideo);
+            this._isPlaying = true;
+        }
     }
 
 
