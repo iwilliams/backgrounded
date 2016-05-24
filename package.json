@@ -1,23 +1,23 @@
 {
-  "name": "progressive",
+  "name": "backgrounded",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/js/progressive.js",
+  "main": "dist/js/backgrounded.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify src/js/progressive.js -o dist/js/progressive.js -t [ babelify --presets [ es2015 ] ] -s progressive",
+    "build": "browserify src/js/backgrounded.js -o dist/js/backgrounded.min.js -t [ babelify --presets [ es2015 ] ] -s backgrounded",
     "watch": "gulp"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iwilliams/progressive.git"
+    "url": "git+https://github.com/iwilliams/backgrounded.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/iwilliams/progressive/issues"
+    "url": "https://github.com/iwilliams/backgrounded/issues"
   },
-  "homepage": "https://github.com/iwilliams/progressive#readme",
+  "homepage": "https://github.com/iwilliams/backgrounded#readme",
   "devDependencies": {
     "babel-preset-es2015": "^6.9.0",
     "browserify": "^13.0.1",

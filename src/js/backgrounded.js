@@ -1,4 +1,4 @@
-export default class Progressive {
+export default class Backgrounded {
 
     /**
      * sources:
@@ -153,4 +153,33 @@ export default class Progressive {
         this._videoX = (minW - this._videoWidth)/2;
         this._videoY = (minH - this._videoHeight)/2;
     }
+
+
+
+
+    get video() {
+        return this._currentVideo;
+    }
+
+
+
+
+    /**
+     * Pause the current video
+     */
+    pause() {
+        if(!this._currentVideo.paused) this.currentVideo.pause();
+    }
+
+
+
+
+    /**
+     * Play the current video
+     */
+    play() {
+        if(this._currentVideo.paused) this.currentVideo.play();
+    }
+
+
 }

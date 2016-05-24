@@ -10,8 +10,8 @@ var defaultTasks = [];
 var buildTasks   = [];
 var dest         = './dist';
 var jsSource     = './src/js';
-var jsEntry      = jsSource += '/progressive.js';
-var jsOutput     = 'progressive.js';
+var jsEntry      = jsSource += '/backgrounded.js';
+var jsOutput     = 'backgrounded.min.js';
 
 var bowerDir = function(dir) {
     return './bower_components/' + dir;
@@ -25,7 +25,7 @@ var includes = {
 // http://stackoverflow.com/questions/24992980/how-to-uglify-output-with-browserify-in-gulp
 function transpileJS(entryPoint, outputName, outputPath, debug) {
     return function() {
-        var bundler = browserify(entryPoint, { debug: debug, standalone: 'Progressive' })
+        var bundler = browserify(entryPoint, { debug: debug, standalone: 'backgrounded' })
           .transform(babelify)
           .bundle()
           .on("error", function (err) { console.log("Error : " + err.message); })
