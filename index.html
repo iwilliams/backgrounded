@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <style>
+            #progressive {
+                width: 100%;
+                height: 600px;
+                /*background: red;*/
+                margin: 0 auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="progressive"></div>
+
+        <script src="./dist/js/progressive.js"></script>
+        <script>
+            var bgVid = new Progressive("#progressive", [
+                [
+                    { src: './nsfwedding-video.webm', type: 'video/webm' },
+                    { src: './nsfwedding-video.mp4',  type: 'video/mp4'  },
+                    { src: './nsfwedding-video.ogv',  type: 'video/ogg'  }
+                ],
+                [
+                    { src: './nsfwedding-video-huge.webm', type: 'video/webm' },
+                    { src: './nsfwedding-video-huge.mp4',  type: 'video/mp4'  },
+                    { src: './nsfwedding-video-huge.ogv',  type: 'video/ogg'  }
+                ]
+            ]);
+        </script>
+    </body>
+</html>
