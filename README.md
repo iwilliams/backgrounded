@@ -40,32 +40,32 @@ const Backgrounded = require('backgrounded');
 
 ## API
 
-### backgrounded = Backgrounded(container, videos)
+### `backgrounded = Backgrounded(container, videos)`
 Returns an instance of Backgrounded.
-`container` - A query selector or DOM node that the video will fill upon load.
-`videos`    - An array of video elements or arrays that represent the source files for the video. The videos will load in priority of their index in the videos array, with the last element being the desired final full quality video.
+- `container` A query selector or DOM node that the video will fill upon load.
+- `videos`    An array of video elements or arrays that represent the source files for the video. The videos will load in priority of their index in the videos array, with the last element being the desired final full quality video.
 
-### backgrounded.play()
+### `backgrounded.play()`
 Will play the video background.
 
-### backgrounded.pause()
+### `backgrounded.pause()`
 Will pause the video background.
 
 ## Events
 Backgrounded will emit some events that can be subscribed to with `.on(eventName, listener)` or `.once(eventName, listener)` and detached with `.off(eventName, listener)`. Currently Backgrounded extends [Smelly Event Emitter](https://github.com/brandonjpierce/event-emitter) so you can visit their documentation if you need more power, but this could change in the future. However if I change the event emitter, `.on`, `.once`, and `.off` should not change.
 
-### `.on( 'canplaythrough', (videoElement, index) => {} )`
+### `.on('canplaythrough', (videoElement, index) => {})`
 The `canplaythrough` event's listener will be called with the videoElement that `canplaythrough` as the first argument, and the `index` of that element in the initial videos array as it's second argument.
 
-### `.on( 'setactivevideo', videoElement => {} )`
+### `.on('setactivevideo', videoElement => {})`
 The `setactivevideo` listener will be called with the video element that has been set as the current active video.
 
-### `.on( 'resize', () => {} )`
+### `.on('resize', () => {})`
 The `resize` listener will be called when the video has been resized to fill it's container.
 
-### `.on( 'playing', videoElement => {} )`
+### `.on('playing', videoElement => {})`
 The `playing` listener will be called with the active video element when the video is played.
 
-### `.on( 'paused', videoElement => {} )`
+### `.on('paused', videoElement => {})`
 The `paused` listener will be called with the active video element when the video is paused.
 
