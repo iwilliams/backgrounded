@@ -55,8 +55,8 @@ export default class Backgrounded extends EventEmitter {
             // Otherwise build a video element and set its sources
             } else {
                 videoElement = document.createElement('video');
-                videoElement.setAttribute('preload', 'none');
-                videoElement.setAttribute('loop',    'true');
+                videoElement.setAttribute('loop',     'true');
+                videoElement.setAttribute('autoplay', 'true');
 
                 sources.forEach(source => {
                     let sourceElement = document.createElement('source');
@@ -68,7 +68,10 @@ export default class Backgrounded extends EventEmitter {
 
             // Can Play Through callback for videos that load
             let canPlayThrough = e => {
-                this._setActiveVideo(videoElement);
+                // Only set to active video if it is the higher quality verison
+                if(!this._activeVideo || videoElements.indexOf(videoElement) > videoElements.indexOf(this._activeVideo)) {
+                    this._setActiveVideo(videoElement);
+                }
                 // If there is another video to load then start it up
                 if(videoElements[idx + 1]) videoElements[idx + 1].load();
                 // Emit event for canplaythrough
@@ -79,20 +82,22 @@ export default class Backgrounded extends EventEmitter {
 
             // If the video element is not fully loaded then attach a loading event
             if(videoElement.readyState !== HTMLMediaElement.HAVE_ENOUGH_DATA) {
-                videoElement.addEventListener('canplaythrough', canPlayThrough);
+                videoElement.addEventListener('canplaythrough', canPlayThrough, false);
             // Else fire the function manually
             } else {
                 canPlayThrough();
             }
 
+            // Make sure the video element has started to load
+            videoElement.load();
+
             return videoElement;
         });
 
+        window.videoElements = videoElements;
+
         // Attach resize event so the canvas will be the right size
         window.addEventListener('resize', this._calculateSize.bind(this));
-
-        // Kick off the load for the first video
-        videoElements[0].load();
     }
 
 
@@ -226,13 +231,11 @@ export default class Backgrounded extends EventEmitter {
      * Pause the current video
      */
     pause() {
-        if(!this._activeVideo.paused) {
-            this.activeVideo.pause();
-            window.cancelAnimationFrame(this._animationKey);
-            this._animationKey = null;
-            this.emit('paused', this._activeVideo);
-            this._isPlaying = false;
-        }
+        this.activeVideo.pause();
+        window.cancelAnimationFrame(this._animationKey);
+        this._animationKey = null;
+        this.emit('paused', this._activeVideo);
+        this._isPlaying = false;
     }
 
 
@@ -242,12 +245,10 @@ export default class Backgrounded extends EventEmitter {
      * Play the current video
      */
     play() {
-        if(this._activeVideo.paused) {
-            this._activeVideo.play();
-            if(!this._animationKey) this._render();
-            this.emit('playing', this._activeVideo);
-            this._isPlaying = true;
-        }
+        this._activeVideo.play();
+        if(!this._animationKey) this._render();
+        this.emit('playing', this._activeVideo);
+        this._isPlaying = true;
     }
 
 
