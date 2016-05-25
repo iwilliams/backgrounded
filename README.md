@@ -45,11 +45,25 @@ Returns an instance of Backgrounded.
 - `container` A query selector or DOM node that the video will fill upon load.
 - `videos`    An array of video elements or arrays that represent the source files for the video. The videos will load in priority of their index in the videos array, with the last element being the desired final full quality video.
 
-### `backgrounded.play()`
+### `.play()`
 Will play the video background.
 
-### `backgrounded.pause()`
+### `.pause()`
 Will pause the video background.
+
+## Properties
+
+### `.activeVideo`
+Read only getter that returns the active video element.
+
+### `.videoElements`
+Read only getter that returns the video elements.
+
+### `.canvas`
+Read only getter that returns the canvas element that the video plays in.
+
+### `.container`
+Read only getter that returns the container element.
 
 ## Events
 Backgrounded will emit some events that can be subscribed to with `.on(eventName, listener)` or `.once(eventName, listener)` and detached with `.off(eventName, listener)`. Currently Backgrounded extends [Smelly Event Emitter](https://github.com/brandonjpierce/event-emitter) so you can visit their documentation if you need more power, but this could change in the future. However if I change the event emitter, `.on`, `.once`, and `.off` should not change.
